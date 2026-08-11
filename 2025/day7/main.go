@@ -88,12 +88,12 @@ func partOne(lines []string) {
 		}
 	}
 
-	for i := range data {
-		for _, char := range data[i] {
-			fmt.Print(char, " ")
-		}
-		fmt.Println()
-	}
+	// for i := range data {
+	// 	for _, char := range data[i] {
+	// 		fmt.Print(char, " ")
+	// 	}
+	// 	fmt.Println()
+	// }
 
 	fmt.Println("Part One: ", totalSplits)
 }
