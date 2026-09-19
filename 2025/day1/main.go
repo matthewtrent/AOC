@@ -1,49 +1,50 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"strconv"
+
+	"github.com/matthewtrent/aoc/utils"
 )
 
 func main() {
-	fileName := "input.txt"
+	lines, err := utils.ReadFile()
+	if err != nil {
+		print(err)
+		return
+	}
+
+	partOne(lines)
+	partTwo(lines)
+}
+
+func partOne(lines []string) {
 	currNum := 50
 	numZero := 0
 
-	userArgs := os.Args[1:]
+	for _, line := range lines {
 
-	if len(userArgs) > 0 {
-		fileName = userArgs[0]
-	}
-
-	fmt.Println("fileName: ", fileName)
-
-	file, err := os.Open(fileName)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer file.Close()
-
-	reader := bufio.NewReader(file)
-
-	for {
-		data, err := reader.ReadString('\n')
-		gotToZero := 0
-		if err != nil {
-			fmt.Println(err)
-			fmt.Println("stopped at zero: ", numZero)
-			return
+		currNum, _ = rotateLock(line, currNum)
+		if currNum == 0 {
+			numZero += 1
 		}
+	}
 
-		//fmt.Println(len(data))
-		//fmt.Print(data)
+	fmt.Println("Part 1: ", numZero)
+}
 
-		currNum, gotToZero = rotateLock(data, currNum)
+func partTwo(lines []string) {
+	currNum := 50
+	numZero := 0
+
+	for _, line := range lines {
+		gotToZero := 0
+
+		currNum, gotToZero = rotateLock(line, currNum)
 		numZero += gotToZero
 	}
+
+	fmt.Println("Part 2: ", numZero)
 }
 
 /*
@@ -64,10 +65,10 @@ func rotateLock(data string, currNum int) (int, int) {
 	}
 
 	// Extract the number of times to rotate
-	num := data[1 : len(data)-1]
+	num := data[1:]
 	numSpin, _ := strconv.Atoi(num)
 
-	for range numSpin {
+	for range numSpin{
 		currNum += rotateDir
 		if currNum == -1 {
 			currNum = 99

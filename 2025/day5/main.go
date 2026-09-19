@@ -1,13 +1,12 @@
 package main
 
 import (
-	"bufio"
 	"container/list"
 	"fmt"
-	"io"
-	"os"
 	"strconv"
 	"strings"
+
+	"github.com/matthewtrent/aoc/utils"
 )
 
 type Ranges struct {
@@ -16,85 +15,61 @@ type Ranges struct {
 }
 
 func main() {
-	fileName := "input.txt"
-	userArgs := os.Args[1:]
-	freshCount := 0
-
-	if len(userArgs) > 0 {
-		fileName = userArgs[0]
-	}
-
-	fmt.Println("fileName: ", fileName)
-
-	file, err := os.Open(fileName)
+	lines, err := utils.ReadFile()
 	if err != nil {
-		fmt.Println(err)
+		print(err)
 		return
 	}
 
-	reader := bufio.NewReader(file)
+	ranges, ingredients := createRangeAndIngredients(lines)
 
+	partOne(ranges, ingredients)
+	partTwo(ranges)
+}
+
+func partOne(ranges *list.List, ingredients []string) {
+	freshCount := 0
+
+	for _, ingredient := range ingredients {
+		val, _ := strconv.Atoi(ingredient)
+
+		freshCount += checkInRange(val, ranges)
+	}
+
+	fmt.Println("Part 1: ", freshCount)
+}
+
+func partTwo(ranges *list.List) {
+	fmt.Println("Part 2: ", countRange(ranges))
+}
+
+func createRangeAndIngredients(lines []string) (*list.List, []string) {
 	ranges := list.New()
+	ingredients := make([]string, 0)
 
-	// fill in ranges
+	for _, line := range lines {
 
-	for {
-		data, err := reader.ReadString('\n')
-		if err != nil {
-			fmt.Println(err)
-			return
+		bounds := strings.Split(line, "-")
+		// Then it is a range
+		if len(bounds) >= 2 {
+			lower, _ := strconv.Atoi(bounds[0])
+			upper, _ := strconv.Atoi(bounds[1])
+
+			currRange := Ranges{
+				Lower: lower,
+				Upper: upper,
+			}
+
+			condenseRange(currRange, ranges)
+		} else {
+			if line == "" {
+				continue
+			}
+			ingredients = append(ingredients, line)
 		}
 
-		// cut off the new line character
-		data = data[:len(data)-1]
-
-		if len(data) == 0 {
-			break
-		}
-
-		bounds := strings.Split(data, "-")
-
-		lower, _ := strconv.Atoi(bounds[0])
-		upper, _ := strconv.Atoi(bounds[1])
-
-		currRange := Ranges{
-			Lower: lower,
-			Upper: upper,
-		}
-
-		condenseRange(currRange, ranges)
 	}
-
-	// for e := ranges.Front(); e != nil; e = e.Next() {
-	// 	selectedRange := e.Value.(Ranges)
-	// 	fmt.Println(selectedRange.Lower, "-", selectedRange.Upper)
-	// }
-
-	for {
-		data, err := reader.ReadString('\n')
-		if err == io.EOF {
-			fmt.Println("Part1: ", freshCount)
-			break
-		}
-
-		if err != nil && err != io.EOF {
-			fmt.Println(err)
-			return
-		}
-
-		// cut off the new line character
-		data = data[:len(data)-1]
-
-		if len(data) == 0 {
-			break
-		}
-
-		num, _ := strconv.Atoi(data)
-
-		freshCount += checkInRange(num, ranges)
-	}
-
-	fmt.Println("Part2: ", countRange(ranges))
+	return ranges, ingredients
 }
 
 func condenseRange(bounds Ranges, ranges *list.List) {

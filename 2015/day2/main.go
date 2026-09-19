@@ -1,17 +1,16 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"os"
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/matthewtrent/aoc/utils"
 )
 
 func main() {
-	lines, err := readFile()
+	lines, err := utils.ReadFile()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -70,39 +69,4 @@ func surfaceAreaPlusSmallest(l, w, h int) int {
 	sideTwo := l * h
 	sideThree := w * h
 	return 2*(sideOne+sideTwo+sideThree) + min(sideOne, sideTwo, sideThree)
-}
-
-func readFile() ([]string, error) {
-	fileName := "input.txt"
-
-	if len(os.Args) > 1 {
-		fileName = os.Args[1]
-	}
-
-	fmt.Println("File Name: ", fileName)
-
-	file, err := os.Open(fileName)
-	if err != nil {
-		return nil, err
-	}
-
-	reader := bufio.NewReader(file)
-
-	var lines []string
-
-	for {
-		data, err := reader.ReadString('\n')
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, err
-		}
-
-		// Cutting off the newLine character at the end, as it is never in actual input
-		data = data[:len(data)-1]
-		lines = append(lines, data)
-	}
-
-	return lines, nil
 }

@@ -1,74 +1,41 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"os"
 	"strings"
+
+	"github.com/matthewtrent/aoc/utils"
 )
 
-type Index struct {
-	X int
-	Y int
-}
-
 func main() {
-	fileName := "input.txt"
-	total := 0
-
-	userArgs := os.Args[1:]
-
-	if len(userArgs) > 0 {
-		fileName = userArgs[0]
-	}
-
-	fmt.Println("fileName: ", fileName)
-
-	file, err := os.Open(fileName)
+	lines, err := utils.ReadFile()
 	if err != nil {
-		fmt.Println(err)
+		print(err)
 		return
 	}
-	defer file.Close()
+	partOne(lines)
+	partTwo(lines)
+}
 
-	reader := bufio.NewReader(file)
+func partOne(lines []string) {
+	total := 0
+	wall := createWall(lines)
 
-	var lines []string
-	firstLine := true
+	foundIter := 0
+	foundIter, _ = openRolls(wall, 4)
 
-	for {
-		data, err := reader.ReadString('\n')
-		//fmt.Println(data)
+	total += foundIter
 
-		if err == io.EOF {
-			break
-		}
+	fmt.Println("Part 1: ", total)
+}
 
-		// Not optimal, ideal would set a large size and not require runtime expansion
-		// Though I dont know how len() would work with it
-		if len(data) > 0 {
-			// Remove new line character
-			data = data[:len(data)-1]
-			data = "." + data + "."
-			if firstLine {
-				lines = append(lines, strings.Repeat(".", len(data)))
-				firstLine = false
-			}
-			lines = append(lines, data)
-		}
-
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-	}
-
-	lines = append(lines, strings.Repeat(".", len(lines[0])))
+func partTwo(lines []string) {
+	total := 0
+	wall := createWall(lines)
 
 	for {
 		foundIter := 0
-		foundIter, lines = openRolls(lines, 4)
+		foundIter, wall = openRolls(wall, 4)
 		if foundIter == 0 {
 			break
 		}
@@ -76,16 +43,26 @@ func main() {
 		total += foundIter
 	}
 
-	// for _, line := range lines {
-	// 	fmt.Println(line)
-	// }
+	fmt.Println("Part 2: ", total)
+}
 
-	fmt.Println(total)
+func createWall(lines []string) []string {
+	var wall []string
+
+	wall = append(wall, strings.Repeat(".", len(lines[0])+2))
+	for _, line := range lines {
+
+		data := "." + line + "."
+		wall = append(wall, data)
+	}
+
+	wall = append(wall, strings.Repeat(".", len(lines[0])+2))
+	return wall
 }
 
 func openRolls(wall []string, closedRolls int) (int, []string) {
 	total := 0
-	var takenRoll []Index
+	var takenRoll []utils.Point
 	// Go through each row of the wall
 	for i := 1; i < len(wall)-1; i++ {
 		// fmt.Println(wall[i-1])
@@ -124,7 +101,7 @@ func openRolls(wall []string, closedRolls int) (int, []string) {
 				if subTotal < closedRolls {
 					//fmt.Println("Less than 4 @ found")
 					total += 1
-					takenRoll = append(takenRoll, Index{
+					takenRoll = append(takenRoll, utils.Point{
 						X: i,
 						Y: j,
 					})

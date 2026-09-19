@@ -1,16 +1,14 @@
 package main
 
 import (
-	"bufio"
 	"container/list"
 	"fmt"
-	"io"
 	"log"
-	"os"
 	"strconv"
 	"strings"
 
 	"github.com/bartolsthoorn/gohighs/highs"
+	"github.com/matthewtrent/aoc/utils"
 )
 
 type Machine struct {
@@ -42,7 +40,7 @@ type LightState struct {
 }
 
 func main() {
-	lines, err := readFile()
+	lines, err := utils.ReadFile()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -253,39 +251,4 @@ func parseJoltage(data []string) StartJoltage {
 		strings.Join(data, ""),
 		vals,
 	}
-}
-
-func readFile() ([]string, error) {
-	fileName := "input.txt"
-
-	if len(os.Args) > 1 {
-		fileName = os.Args[1]
-	}
-
-	fmt.Println("File Name: ", fileName)
-
-	file, err := os.Open(fileName)
-	if err != nil {
-		return nil, err
-	}
-
-	reader := bufio.NewReader(file)
-
-	var lines []string
-
-	for {
-		data, err := reader.ReadString('\n')
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, err
-		}
-
-		// Cutting off the newLine character at the end, as it is never in actual input
-		data = data[:len(data)-1]
-		lines = append(lines, data)
-	}
-
-	return lines, nil
 }

@@ -1,29 +1,24 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"os"
 	"slices"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/matthewtrent/aoc/utils"
 )
 
-type Coordinate struct {
-	X int
-	Y int
-}
 
 type Square struct {
-	CornerCoordOne Coordinate
-	CornerCoordTwo Coordinate
+	PointOne utils.Point
+	PointTwo utils.Point
 	Area           int
 }
 
 func main() {
-	lines, err := readFile()
+	lines, err := utils.ReadFile()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -37,43 +32,9 @@ func main() {
 	partTwo(coordList, areaList)
 }
 
-func readFile() ([]string, error) {
-	fileName := "input.txt"
-
-	if len(os.Args) > 1 {
-		fileName = os.Args[1]
-	}
-
-	fmt.Println("File Name: ", fileName)
-
-	file, err := os.Open(fileName)
-	if err != nil {
-		return nil, err
-	}
-
-	reader := bufio.NewReader(file)
-
-	var lines []string
-
-	for {
-		data, err := reader.ReadString('\n')
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, err
-		}
-
-		data = data[:len(data)-1]
-		lines = append(lines, data)
-	}
-
-	return lines, nil
-}
-
-func partOne(lines []string) ([]Square, []Coordinate) {
+func partOne(lines []string) ([]Square, []utils.Point) {
 	areaList := make([]Square, 0, 1000)
-	coordList := make([]Coordinate, len(lines))
+	coordList := make([]utils.Point, len(lines))
 	for i, coord1 := range lines {
 		coordOne := stringToCoord(coord1)
 		coordList[i] = coordOne
@@ -97,7 +58,7 @@ func partOne(lines []string) ([]Square, []Coordinate) {
 	return areaList, coordList
 }
 
-func partTwo(coordList []Coordinate, areaList []Square) {
+func partTwo(coordList []utils.Point, areaList []Square) {
 	// Creating an array of used Xs and Ys to condense the coordinates
 	xVals := make([]int, len(coordList))
 	yVals := make([]int, len(coordList))
@@ -131,7 +92,7 @@ func partTwo(coordList []Coordinate, areaList []Square) {
 	}
 
 	for i, currCoord := range coordList {
-		var nextCoord Coordinate
+		var nextCoord utils.Point
 
 		if i == len(coordList)-1 {
 			nextCoord = coordList[0]
@@ -208,29 +169,29 @@ func partTwo(coordList []Coordinate, areaList []Square) {
 func checkSquare(square Square, grid [][]int, xMap map[int]int, yMap map[int]int) bool {
 	// Checking the alternate corners are valid, if not then just move on
 
-	if grid[yMap[square.CornerCoordOne.Y]][xMap[square.CornerCoordTwo.X]] != 1 {
+	if grid[yMap[square.PointOne.Y]][xMap[square.PointTwo.X]] != 1 {
 		return false
 	}
 
-	if grid[yMap[square.CornerCoordTwo.Y]][xMap[square.CornerCoordOne.X]] != 1 {
+	if grid[yMap[square.PointTwo.Y]][xMap[square.PointOne.X]] != 1 {
 		return false
 	}
 
 	// finding min and max for x & ys
 
-	xMin := xMap[square.CornerCoordTwo.X]
-	xMax := xMap[square.CornerCoordOne.X]
-	yMin := yMap[square.CornerCoordTwo.Y]
-	yMax := yMap[square.CornerCoordOne.Y]
+	xMin := xMap[square.PointTwo.X]
+	xMax := xMap[square.PointOne.X]
+	yMin := yMap[square.PointTwo.Y]
+	yMax := yMap[square.PointOne.Y]
 
-	if square.CornerCoordOne.X < square.CornerCoordTwo.X {
-		xMin = xMap[square.CornerCoordOne.X]
-		xMax = xMap[square.CornerCoordTwo.X]
+	if square.PointOne.X < square.PointTwo.X {
+		xMin = xMap[square.PointOne.X]
+		xMax = xMap[square.PointTwo.X]
 	}
 
-	if square.CornerCoordOne.Y < square.CornerCoordTwo.Y {
-		yMin = yMap[square.CornerCoordOne.Y]
-		yMax = yMap[square.CornerCoordTwo.Y]
+	if square.PointOne.Y < square.PointTwo.Y {
+		yMin = yMap[square.PointOne.Y]
+		yMax = yMap[square.PointTwo.Y]
 	}
 
 	temp := make([][]int, len(grid))
@@ -238,7 +199,7 @@ func checkSquare(square Square, grid [][]int, xMap map[int]int, yMap map[int]int
 		temp[i] = make([]int, len(grid[i]))
 		copy(temp[i], grid[i])
 	}
-	return floodCheck(xMap[square.CornerCoordOne.X], yMap[square.CornerCoordOne.Y], xMin, xMax, yMin, yMax, temp)
+	return floodCheck(xMap[square.PointOne.X], yMap[square.PointOne.Y], xMin, xMax, yMin, yMax, temp)
 }
 
 func floodCheck(x, y, xMin, xMax, yMin, yMax int, grid [][]int) bool {
@@ -294,11 +255,11 @@ func floodFill(x, y int, grid [][]int) [][]int {
 // 	}
 // }
 
-func stringToCoord(strCord string) Coordinate {
+func stringToCoord(strCord string) utils.Point {
 	coordSlice := strings.Split(strCord, ",")
 	x, _ := strconv.Atoi(coordSlice[0])
 	y, _ := strconv.Atoi(coordSlice[1])
-	coord := Coordinate{
+	coord := utils.Point{
 		x,
 		y,
 	}

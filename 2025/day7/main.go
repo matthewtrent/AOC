@@ -1,18 +1,17 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"os"
 	"strconv"
 	"strings"
+
+	"github.com/matthewtrent/aoc/utils"
 )
 
 var seenSplit map[string]int
 
 func main() {
-	lines, err := readFile()
+	lines, err := utils.ReadFile()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -26,40 +25,6 @@ func main() {
 
 	partOne(lines)
 	partTwo(lines)
-}
-
-func readFile() ([]string, error) {
-	fileName := "input.txt"
-
-	if len(os.Args) > 1 {
-		fileName = os.Args[1]
-	}
-
-	fmt.Println("File Name: ", fileName)
-
-	file, err := os.Open(fileName)
-	if err != nil {
-		return nil, err
-	}
-
-	reader := bufio.NewReader(file)
-
-	var lines []string
-
-	for {
-		data, err := reader.ReadString('\n')
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, err
-		}
-
-		data = data[:len(data)-1]
-		lines = append(lines, data)
-	}
-
-	return lines, nil
 }
 
 func partOne(lines []string) {

@@ -1,47 +1,37 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"strconv"
+
+	"github.com/matthewtrent/aoc/utils"
 )
 
 func main() {
-	fileName := "input.txt"
-	totalSum := 0
-
-	userArgs := os.Args[1:]
-
-	if len(userArgs) > 0 {
-		fileName = userArgs[0]
-	}
-
-	fmt.Println("fileName: ", fileName)
-
-	file, err := os.Open(fileName)
+	lines, err := utils.ReadFile()
 	if err != nil {
-		fmt.Println(err)
+		print(err)
 		return
 	}
-	defer file.Close()
 
-	reader := bufio.NewReader(file)
+	partOne(lines)
+	partTwo(lines)
+}
 
-	for {
-		data, err := reader.ReadString('\n')
-
-		//fmt.Println(data)
-		if len(data) > 0 {
-			data = data[:len(data)-1]
-			totalSum = totalSum + largestBattery(data, 12)
-		}
-		if err != nil {
-			fmt.Println("totalSum: ", totalSum)
-			fmt.Println(err)
-			return
-		}
+func partOne(lines []string) {
+	total := 0
+	for _, line := range lines {
+		total += largestBattery(line, 2)
 	}
+	fmt.Println("Part 1: ", total)
+}
+
+func partTwo(lines []string) {
+	total := 0
+	for _, line := range lines {
+		total += largestBattery(line, 12)
+	}
+	fmt.Println("Part 2: ", total)
 }
 
 func largestBattery(data string, length int) int {
@@ -55,10 +45,6 @@ func largestBattery(data string, length int) int {
 			indexToCheck = i - (len(data) - length)
 		}
 
-		// fmt.Println(i, len(data))
-		// fmt.Println(indexToCheck)
-		// fmt.Printf("%c %c\n", curRune, largest[indexToCheck])
-
 		replaced := false
 		for j := indexToCheck; j < length; j++ {
 			if replaced {
@@ -71,7 +57,6 @@ func largestBattery(data string, length int) int {
 	}
 
 	val, _ := strconv.Atoi(string(largest))
-	fmt.Println(val)
 
 	return val
 }
